@@ -1,4 +1,8 @@
+import '@babel/polyfill';
 import axios from 'axios';
+import params from './params';
+
+const { baseURL, format, indicatorCodes } = params.api;
 
 const sortByYear = (a, b) => {
   if (a.date > b.date) {
@@ -13,7 +17,8 @@ const sortByYear = (a, b) => {
 const resolvers = {
   Query: {
     allCountries: () => {
-      return axios.get('https://api.worldbank.org/v2/countries/?format=json&per_page=500')
+      const url = `${baseURL}/?format=${format}&per_page=500`;
+      return axios.get(url)
         .then((response) => {
           if (response.data.length <= 1) {
             return [];
@@ -32,7 +37,8 @@ const resolvers = {
         .catch((error) => console.log(error))
     },
     country: (root, {iso2Code}) => {
-      return axios.get(`https://api.worldbank.org/v2/countries/${iso2Code}/?format=json`)
+      const url = `${baseURL}/${iso2Code}/?format=${format}`;
+      return axios.get(url)
         .then((response) => {
           if (response.data.length <= 1) {
             return {};
@@ -43,30 +49,75 @@ const resolvers = {
           return response.data[1][0];
         })
         .catch((error) => console.log(error))
+    },
+    countries: (root, { iso2Codes }) => {
+      const key = 'countries' + Math.random().toString();
+      console.time(key);
+      const countries = iso2Codes.join(';');
+      const url = `${baseURL}/${countries}/?format=${format}`;
+      return axios.get(url)
+        .then((response) => {
+          if (response.data.length <= 1) {
+            return [];
+          }
+          if (response.data[1].length === 0) {
+            return [];
+          }
+          console.timeEnd(key);
+          return response.data[1];
+        })
+        .catch((error) => { console.log(error); return []; })
     }
   },
   Country: {
     populations: (country) => {
-      return axios.get(`https://api.worldbank.org/v2/countries/${country.iso2Code}/indicators/SP.POP.TOTL?format=json&per_page=100`)
+      const url = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.population}?format=${format}&per_page=100`;
+      return axios.get(url)
         .then((response) => {
           if (response.data.length <= 1) {
             return [];
           }
-          return response.data[1].filter(population => population.value !== null)
-            .sort(sortByYear);
+          return response.data[1].sort(sortByYear);
         })
         .catch((error) => console.log(error))
     },
     emissions: (country) => {
-      return axios.get(`https://api.worldbank.org/v2/countries/${country.iso2Code}/indicators/EN.ATM.CO2E.KT?format=json&per_page=100`)
+      const url = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.emission}?format=${format}&per_page=100`;
+      return axios.get(url)
         .then((response) => {
           if (response.data.length <= 1) {
             return [];
           }
-          return response.data[1].filter(emission => emission.value !== null)
-            .sort(sortByYear);
+          return response.data[1].sort(sortByYear);
         })
         .catch((error) => console.log(error))
+    },
+    years: async (country) => {
+      const populationUrl = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.population}?format=${format}&per_page=100`;
+      const emissionUrl = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.emission}?format=${format}&per_page=100`;
+      const populations = await axios.get(populationUrl);
+      const emissions = await axios.get(emissionUrl);
+
+      // Combine years into single array of objects
+      const data = populations.data[1].reduce((results, { date, value }) => {
+        const emissionObject = emissions.data[1].find((emission) => emission.date === date);
+        let year = {
+          date,
+          emission: (emissionObject.value === null ? 0 : emissionObject.value * 1000),
+          population: (value === null ? 0 : value),
+          emissionPerPerson: 0,
+        };
+        if (emissionObject !== undefined) {
+          const perPerson = (emissionObject.value * 1000) / value;
+          if (!isNaN(perPerson)) {
+            year.emissionPerPerson = perPerson.toFixed(2);
+          }
+        }
+        results.push(year);
+        return results;
+      }, []);
+
+      return data.sort(sortByYear);
     }
   }
 };

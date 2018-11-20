@@ -12,11 +12,19 @@ const typeDefs = gql`
     value: Float
   }
 
+  type Year {
+    date: String
+    emission: Float
+    population: Int
+    emissionPerPerson: Float
+  }
+
   type Country {
     id: String
     iso2Code: String
     name: String
     capitalCity: String
+    years: [Year]
     populations: [Population]
     emissions: [Emission]
   }
@@ -24,6 +32,7 @@ const typeDefs = gql`
   type Query {
     allCountries: [Country]
     country(iso2Code: String!): Country
+    countries(iso2Codes: [String]!): [Country]
   }
 
 `;
