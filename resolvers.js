@@ -92,27 +92,35 @@ const resolvers = {
         })
         .catch((error) => console.log(error))
     },
+    gdps: (country) => {
+      const url = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.gdp}?format=${format}&per_page=100`;
+      return axios.get(url)
+        .then((response) => {
+          if (response.data.length <= 1) {
+            return [];
+          }
+          return response.data[1].sort(sortByYear);
+        })
+        .catch((error) => console.log(error))
+    },
     years: async (country) => {
       const populationUrl = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.population}?format=${format}&per_page=100`;
       const emissionUrl = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.emission}?format=${format}&per_page=100`;
+      const gdpUrl = `${baseURL}/${country.iso2Code}/indicators/${indicatorCodes.gdp}?format=${format}&per_page=100`;
       const populations = await axios.get(populationUrl);
       const emissions = await axios.get(emissionUrl);
+      const gdps = await axios.get(gdpUrl);
 
       // Combine years into single array of objects
       const data = populations.data[1].reduce((results, { date, value }) => {
         const emissionObject = emissions.data[1].find((emission) => emission.date === date);
+        const gdpObject = gdps.data[1].find((gdp) => gdp.date === date);
         let year = {
           date,
-          emission: (emissionObject.value === null ? 0 : emissionObject.value * 1000),
+          emission: ('value' in emissionObject && emissionObject.value !== null ? emissionObject.value.toFixed(2) : 0),
           population: (value === null ? 0 : value),
-          emissionPerPerson: 0,
+          gdp: ('value' in gdpObject && gdpObject.value !== null ? gdpObject.value.toFixed(2) : 0),
         };
-        if (emissionObject !== undefined) {
-          const perPerson = (emissionObject.value * 1000) / value;
-          if (!isNaN(perPerson)) {
-            year.emissionPerPerson = perPerson.toFixed(2);
-          }
-        }
         results.push(year);
         return results;
       }, []);

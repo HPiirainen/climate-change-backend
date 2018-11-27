@@ -12,11 +12,16 @@ const typeDefs = gql`
     value: Float
   }
 
+  type GDP {
+    date: String
+    value: Float
+  }
+
   type Year {
     date: String
     emission: Float
     population: Int
-    emissionPerPerson: Float
+    gdp: Float
   }
 
   type Country {
@@ -27,6 +32,7 @@ const typeDefs = gql`
     years: [Year]
     populations: [Population]
     emissions: [Emission]
+    gdps: [GDP]
   }
 
   type Query {

@@ -10,7 +10,8 @@ const server = new ApolloServer({
     settings: {
       'editor.theme': 'light'
     }
-  }
+  },
+  cacheControl: true
 });
 
 export default server;
