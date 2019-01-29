@@ -4,7 +4,7 @@ A GraphQL server for fetching data from [The World Bank API](https://datahelpdes
 
 The GraphQL Playground can be viewed at https://climate-change-back-hpiirainen.herokuapp.com/graphql, and the full app at https://climate-change-hpiirainen.herokuapp.com.
 
-See also the repo for the [front-end side].
+See also the repo for the [front-end side](https://github.com/HPiirainen/climate-change).
 
 ## Background
 
@@ -24,8 +24,8 @@ The backend side is built with Express, GraphQL and Apollo.
 Clone the repo
 
 ```
-git clone [url]
-cd [path]
+git clone https://github.com/HPiirainen/climate-change-backend.git
+cd climate-change-backend
 ```
 
 Install dependencies

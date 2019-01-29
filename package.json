@@ -12,6 +12,10 @@
     "name": "Hermanni Piirainen",
     "email": "hermanni.piirainen@gmail.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HPiirainen/climate-change-backend.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.26.0",
