@@ -1,15 +1,18 @@
 {
   "name": "climate-change-backend",
   "version": "0.5.0",
-  "description": "",
+  "description": "A GraphQL server for country data",
   "main": "index.js",
   "scripts": {
     "start": "npm run dev",
     "dev": "babel-watch server.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Hermanni Piirainen",
+    "email": "hermanni.piirainen@gmail.com"
+  },
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
