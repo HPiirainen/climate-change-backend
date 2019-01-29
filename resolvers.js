@@ -51,8 +51,6 @@ const resolvers = {
         .catch((error) => console.log(error))
     },
     countries: (root, { iso2Codes }) => {
-      const key = 'countries' + Math.random().toString();
-      console.time(key);
       const countries = iso2Codes.join(';');
       const url = `${baseURL}/${countries}/?format=${format}`;
       return axios.get(url)
@@ -63,7 +61,6 @@ const resolvers = {
           if (response.data[1].length === 0) {
             return [];
           }
-          console.timeEnd(key);
           return response.data[1];
         })
         .catch((error) => { console.log(error); return []; })
